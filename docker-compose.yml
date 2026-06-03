@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_gym
+    environment:
+      POSTGRES_DB: gym_db          # Nombre de la base de datos
+      POSTGRES_USER: admin_gym     # Usuario
+      POSTGRES_PASSWORD: password  # Contraseña
+    ports:
+      - "5432:5432"                # Conecta el puerto de Docker con PC
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  web:
+    build: ./backend        # Docker buscará el Dockerfile dentro de la carpeta /backend
+    container_name: django_gym
+    command: python manage.py runserver 0.0.0.0:8000
+    working_dir: /code
+    volumes:
+      - ./backend:/code     # Sincroniza el código local con el contenedor
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_NAME=gym_db
+      - DATABASE_USER=admin_gym
+      - DATABASE_PASSWORD=password
+      - DATABASE_HOST=db
+    depends_on:
+      - db                  # Esto le dice a Docker que espere a que la BD esté lista
+volumes:
+  postgres_data:  
